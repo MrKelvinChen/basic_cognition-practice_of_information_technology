@@ -1,0 +1,6 @@
+*.zip
+*/env
+other/*
+Python/*
+Pycharm/*
+Java/*
