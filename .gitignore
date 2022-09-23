@@ -1,8 +1,10 @@
 *.zip
 */env
-other/*
-Python/*
-Pycharm/*
-Java/*
+other
+Python
+Pycharm
+Java
 *.jpg
 *.docx
+*/.idea
+*/res
