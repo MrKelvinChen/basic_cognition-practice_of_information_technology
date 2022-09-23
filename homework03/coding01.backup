@@ -1,0 +1,226 @@
+# -*- coding:utf-8 -*-
+'''
+    coding01.py
+    ============================
+    @copyright: nwpu.edu.cn
+    @author: Kelvin Chen
+'''
+
+import pymysql
+import os
+import sys
+import traceback
+
+ui = """
+========================================
+               商品数据库
+========================================
+1.添加记录
+2.修改记录
+3.删除记录
+4.退出数据库
+----------------------------------------
+"""
+
+sub_ui = """
+========================================
+请选择修改项：
+========================================
+1.商品名称
+2.商品价格
+3.商品数量
+4.返回上一级
+----------------------------------------
+"""
+
+def sqlexc(sql, db, cursor):
+    try:
+        cursor.execute(sql)
+        db.commit()
+        pass
+    except:
+        db.rollback()
+        traceback.print_exc()
+        pass
+    pass
+
+def insertTable(gname,gprice,gnum):
+    # 获取数据库连接
+    db=pymysql.connect(host='localhost', user='root', password='root', port=3306, database='python01')
+    # 获取数据库操作对象  cursor
+    cursor = db.cursor()
+    sql="INSERT INTO GOODS(GNAME,GPRICE,GNUM) VALUES ('%s',%s,%s);"
+    status=cursor.execute(sql,(gname,gprice,gnum))
+    if status > 0:
+        print('插入数据成功！')
+        pass
+    else:
+        print('插入数据失败！')
+        pass
+    db.commit()
+    cursor.close()
+    db.close()
+    pass
+
+def updateTable(gid,gname,gprice,gnum):
+    # 获取数据库连接
+    db=pymysql.connect(host='localhost', user='root', password='root', port=3306, database='python01')
+    # 获取数据库操作对象  cursor
+    cursor = db.cursor()
+    sql="UPDATE GOODS SET GNAME='%s' GPRICE=%s GNUM=%s WHERE GID=%s;"
+    status=cursor.execute(sql,(gname,gprice,gnum,gid))
+    if status > 0:
+        print('更新数据成功！')
+        pass
+    else:
+        print('更新数据失败！')
+        pass
+    db.commit()
+    cursor.close()
+    db.close()
+    pass
+
+def deleteTable(gid):
+    try:
+        # 获取数据库连接
+        db = pymysql.connect(host='localhost', user='root', password='root', port=3306, database='python01')
+        # 获取数据库操作对象  cursor
+        cursor = db.cursor()
+        sql = "DELETE FROM GOODS WHERE GID=%s;"
+        status = cursor.execute(sql, (gid,))
+        if status > 0:
+            print('删除数据成功！')
+            pass
+        else:
+            print('删除数据失败！')
+            pass
+        db.commit()
+    except:
+        db.rollback()
+        traceback.print_exc()
+    finally:
+        cursor.close()
+        db.close()
+        pass
+    pass
+
+def selectTable():
+    try:
+        # 获取数据库连接
+        db = pymysql.connect(host='localhost', user='root', password='root', port=3306, database='python01')
+        # 获取数据库操作对象  cursor
+        cursor = db.cursor()
+        sql = "SELECT * FROM GOODS;"
+        status = cursor.execute(sql)
+        if status > 0:
+            print('删除数据成功！')
+            pass
+        else:
+            print('删除数据失败！')
+            pass
+        db.commit()
+    except:
+        db.rollback()
+        traceback.print_exc()
+    finally:
+        cursor.close()
+        db.close()
+        pass
+    pass
+
+# # 使用 execute() 方法执行 SQL，如果表存在则删除
+# cursor.execute("DROP TABLE IF EXISTS GOODS")
+
+# 使用预处理语句创建表
+sql = """CREATE TABLE GOODS (
+         GID INT PRIMARY KEY AUTOINCREMENT,
+         GNAME  VARCHAR(20),
+         GPRICE INT,  
+         GNUM INT )"""
+
+sqlexc(sql, db, cursor)
+
+sql = """INSERT INTO GOODS(GNAME,GPRICE,GNUM) VALUES ('TEST1',199,10),('TEST2',399,17),('TEST3',299,99)"""
+
+sqlexc(sql, db, cursor)
+
+'''
+sql = """SELECT * FROM GOODS"""
+
+sql = """UPDATE GOODS SET GPRICE=99 WHERE GNAME='TEST2'"""
+
+'''
+
+
+# Main Loop
+while True:
+    os.system('cls')
+    print(ui)
+
+    choice = int(input('请选择:>'))
+    if choice not in range(1, 5):
+        input('提示：请输入1~4的数字')
+        os.system('cls')  # 清屏操作
+        continue  # 跳出当前循环
+        pass
+    # 判断用户选择的序号
+    if choice == 1:
+        gname=input('请输入商品名称:>')
+        gprice=input('请输入商品价格:>')
+        gnum = input('请输入商品数量:>')
+        input('执行<添加记录>的操作……')
+        sql = "INSERT INTO GOODS(GNAME,GPRICE,GNUM) \
+               VALUES ('%s',%s,%s)" % \
+              (gname,int(gprice),int(gnum))
+        sqlexc(sql, db, cursor)
+        continue  # 跳出当前循环
+        pass
+    elif choice == 2:
+        os.system('cls')
+        print(sub_ui)
+        sub_choice = int(input('请选择:>'))
+        if sub_choice not in range(1, 5):
+            input('提示：请输入1~4的数字')
+            os.system('cls')  # 清屏操作
+            continue  # 跳出当前循环
+            pass
+        # 判断用户选择的序号
+        if sub_choice == 1:
+            input('执行<添加记录>的操作……')
+            continue  # 跳出当前循环
+            pass
+        elif sub_choice == 2:
+            input('执行<修改记录>的操作……')
+            continue  # 跳出当前循环
+            pass
+        elif sub_choice == 3:
+            input('执行<删除记录>的操作……')
+            continue  # 跳出当前循环
+            pass
+        else:
+            continue  # 跳出当前循环
+            pass
+        pass
+
+        input('执行<修改记录>的操作……')
+        continue  # 跳出当前循环
+        pass
+    elif choice == 3:
+        input('执行<删除记录>的操作……')
+        continue  # 跳出当前循环
+        pass
+    else:
+        choice = input('确定退出系统吗(y/n)?')
+        if choice.lower() == 'y':
+            sys.exit(0)  # 正常退出系统
+            pass
+        else:
+            continue  # 跳出当前循环
+            pass
+    pass
+
+# 关闭数据库连接
+db.close()
+
+if __name__ == '__main__':
+    pass

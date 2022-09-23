@@ -1,0 +1,100 @@
+# -*- coding:utf-8 -*-
+'''
+    coding01.py
+    ============================
+    @copyright: nwpu.edu.cn
+    @author: Kelvin Chen
+'''
+
+import os
+import re
+import time
+import requests
+from bs4 import    BeautifulSoup
+import urllib3
+import random
+
+def download_poster(url,name):
+    print("downloading with urllib2")
+    f = urllib3.urlopen(url)
+    with open(name, "wb") as code:
+        code.write(f.read())
+
+def write_to_csv(index, title,director, rating, intro, poster_url):
+    f=open('top250.csv','a',encoding='utf-8')
+    f.write(f'{index},{title},{director},{rating},{intro},{poster_url}\n')
+    f.closed
+    pass
+
+def download(url,page,headers):
+    print(f"Downloading: {url}")
+    html = requests.get(url, headers=headers).text
+    soup=BeautifulSoup(html,'html.parser')
+    lis=soup.select('ol li')
+    for li in lis:
+        index=li.find('em').text
+        title=li.find('span',class_='title').text
+        rating = li.find('span', class_='rating_num').text
+        # strInfo = re.search("(?<=<br/>).*?(?=<)", str(li.select_one(".bd p")), re.S | re.M).group().strip()
+        # infos = strInfo.split('/')
+        # year = infos[0].strip()
+        # area = infos[1].strip()
+        # type = infos[2].strip()
+
+        # pattern = re.compile(ur'(?:导演:).*?(?= )')
+        # str = u''
+        # print(pattern.search(str))
+
+        # director = re.search("(?<=导演:).*?(?<=   )", str(li.select_one(".bd p")), re.S | re.M).group().strip()
+
+        # pattern = re.compile("(?<=导演:).*?(?<=   )",re.S | re.M)
+        # str1 = ''
+        # print(pattern.search(str1))
+        # director = re.search("(?<=导演: ).*?(?<=   )", str(li.select_one(".bd p")).replace(' ',' '), re.S | re.M).group().strip()
+
+        # director = re.search("(?<=导演: ).*?((?<=主演:)|(?<=   )|(?<=   ))", str(li.select_one(".bd p")).replace(' ', ' '),
+        #                      re.S | re.M).group().strip()
+        director = re.search("(?<=导演: ).*?((?<=   )|(?<=  ))", str(li.select_one(".bd p")).replace(' ', ' '),
+                             re.S | re.M).group().strip()
+        print(director)
+        # director=''
+        # print(re.search("(?<=导演: ).*?(?=<)", str(li.select_one(".bd p")).replace(' ', ' '),
+        #                      re.S | re.M).group().strip())
+        try:
+            intro = li.find('span', class_='inq').text
+            pass
+        except AttributeError:
+            intro=''
+            pass
+
+        poster_url=li.find('img').get('src')
+        #pic_name=poster_url.split('/')
+        write_to_csv(index, title,director, rating, intro, poster_url)
+        pass
+    page +=25
+    if page <250:
+        time.sleep(random.randint(0,9))
+        download(f"https://movie.douban.com/top250?start={page}&filter=", page, headers)
+
+
+def main():
+    if os.path.exists('top250.csv'):
+        os.remove('top250.csv')
+        pass
+
+    if os.path.exists('top250.json'):
+        os.remove('top250.json')
+        pass
+
+    url = 'https://movie.douban.com/top250'
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) \
+        AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 \
+        Safari/537.36 SE 2.X MetaSr 1.0"}
+    download(url,0,headers)
+    print('Download Done!!!')
+
+if __name__ == '__main__':
+    main()
+    pass
+
